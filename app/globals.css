@@ -1,3 +1,20 @@
+/*
+====================================================================
+Tailwind CSS файл
+Описание:
+  Този CSS файл използва Tailwind CSS и дефинира базови настройки,
+  цветови променливи за светла и тъмна тема, както и потребителски
+  утилити класове. Целта е да осигури последователна визуална основа
+  за уеб приложение за групови екскурзии.
+
+Съдържание:
+  1. @tailwind base, components, utilities – основни директиви на Tailwind
+  2. Custom font-family: Arial, Helvetica, sans-serif
+  3. @layer utilities – дефинира потребителски клас `.text-balance`
+  4. @layer base – задава CSS променливи за светла и тъмна тема чрез :root и .dark
+  5. Прилагане на Tailwind класове за всички елементи и body
+*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
