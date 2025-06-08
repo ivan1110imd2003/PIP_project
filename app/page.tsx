@@ -4,55 +4,11 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Users, Star } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { ExcursionService } from "@/lib/services/excursion-service"
 
-const excursions = [
-  {
-    id: 1,
-    title: "Рилски манастир и Боянската църква",
-    description: "Еднодневна екскурзия до най-известния български манастир и UNESCO обект",
-    price: 45,
-    duration: "8 часа",
-    maxPeople: 25,
-    rating: 4.8,
-    image: "/placeholder.svg?height=200&width=300",
-    location: "София област",
-  },
-  {
-    id: 2,
-    title: "Велико Търново - древната столица",
-    description: "Разходка из историческия център и крепостта Царевец",
-    price: 55,
-    duration: "10 часа",
-    maxPeople: 30,
-    rating: 4.9,
-    image: "/placeholder.svg?height=200&width=300",
-    location: "Велико Търново",
-  },
-  {
-    id: 3,
-    title: "Пловдив - Стария град",
-    description: "Обиколка на античния театър и възрожденските къщи",
-    price: 40,
-    duration: "6 часа",
-    maxPeople: 20,
-    rating: 4.7,
-    image: "/placeholder.svg?height=200&width=300",
-    location: "Пловдив",
-  },
-  {
-    id: 4,
-    title: "Копривщица - музеят под открито небе",
-    description: "Възрожденска архитектура и история на Априлското въстание",
-    price: 50,
-    duration: "7 часа",
-    maxPeople: 25,
-    rating: 4.6,
-    image: "/placeholder.svg?height=200&width=300",
-    location: "София област",
-  },
-]
+export default async function HomePage() {
+  const excursions = await ExcursionService.getAll()
 
-export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
@@ -77,17 +33,18 @@ export default function HomePage() {
               <Card key={excursion.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <Image
-                    src={excursion.image || "/placeholder.svg"}
+                    src={excursion.image_url || "/placeholder.svg"}
                     alt={excursion.title}
                     width={300}
                     height={200}
                     className="w-full h-48 object-cover"
                   />
-                  <Badge className="absolute top-2 right-2 bg-green-500">{excursion.price} лв</Badge>
+                  <Badge className="absolute top-2 right-2 bg-green-500">{excursion.getFormattedPrice()}</Badge>
+                  {excursion.isPopular() && <Badge className="absolute top-2 left-2 bg-yellow-500">Популярна</Badge>}
                 </div>
                 <CardHeader>
                   <CardTitle className="text-lg">{excursion.title}</CardTitle>
-                  <CardDescription className="text-sm">{excursion.description}</CardDescription>
+                  <CardDescription className="text-sm">{excursion.getShortDescription(80)}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center text-sm text-gray-600">
@@ -96,15 +53,15 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-1" />
-                    {excursion.duration}
+                    {excursion.duration} ({excursion.getDurationInHours()}ч)
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Users className="w-4 h-4 mr-1" />
-                    До {excursion.maxPeople} души
+                    До {excursion.max_people} души
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                    {excursion.rating}
+                    {excursion.rating} звезди
                   </div>
                 </CardContent>
                 <CardFooter>

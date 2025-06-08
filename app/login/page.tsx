@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, MapPin } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { signIn, signUp } from "@/app/actions/auth-actions"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -23,40 +24,69 @@ export default function LoginPage() {
     confirmPassword: "",
   })
   const [message, setMessage] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Симулация на логване
-    if (loginData.email === "admin@excursions.bg" && loginData.password === "admin123") {
-      localStorage.setItem("userRole", "admin")
-      localStorage.setItem("userName", "Администратор")
-      setMessage("Успешно влизане като администратор!")
-      setTimeout(() => router.push("/admin"), 1000)
-    } else if (loginData.email && loginData.password) {
-      localStorage.setItem("userRole", "user")
-      localStorage.setItem("userName", loginData.email.split("@")[0])
-      setMessage("Успешно влизане!")
-      setTimeout(() => router.push("/"), 1000)
-    } else {
-      setMessage("Моля въведете валидни данни!")
+    setIsSubmitting(true)
+    setMessage("")
+
+    const formData = new FormData()
+    formData.append("email", loginData.email)
+    formData.append("password", loginData.password)
+
+    const result = await signIn(formData)
+
+    setMessage(result.message)
+    setIsSubmitting(false)
+
+    if (result.success) {
+      if (result.role === "admin") {
+        setTimeout(() => router.push("/admin"), 1000)
+      } else {
+        setTimeout(() => router.push("/"), 1000)
+      }
     }
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (registerData.password !== registerData.confirmPassword) {
       setMessage("Паролите не съвпадат!")
       return
     }
-    if (registerData.name && registerData.email && registerData.password) {
-      localStorage.setItem("userRole", "user")
-      localStorage.setItem("userName", registerData.name)
-      setMessage("Успешна регистрация!")
-      setTimeout(() => router.push("/"), 1000)
-    } else {
-      setMessage("Моля попълнете всички полета!")
+
+    if (registerData.password.length < 3) {
+      setMessage("Паролата трябва да е поне 3 символа!")
+      return
     }
+
+    setIsSubmitting(true)
+    setMessage("")
+
+    const formData = new FormData()
+    formData.append("name", registerData.name)
+    formData.append("email", registerData.email)
+    formData.append("password", registerData.password)
+
+    const result = await signUp(formData)
+
+    setMessage(result.message)
+    setIsSubmitting(false)
+
+    if (result.success) {
+      setTimeout(() => router.push("/"), 1000)
+    }
+  }
+
+  const fillAdminData = () => {
+    setLoginData({ email: "admin@excursions.bg", password: "admin123" })
+  }
+
+  const fillUserData = () => {
+    setLoginData({ email: "user@excursions.bg", password: "user123" })
   }
 
   return (
@@ -116,14 +146,32 @@ export default function LoginPage() {
                       </Button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full">
-                    Влез
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Изчакайте..." : "Влез"}
                   </Button>
                 </form>
-                <div className="mt-4 text-sm text-gray-600">
-                  <p>Тестови данни:</p>
-                  <p>Админ: admin@excursions.bg / admin123</p>
-                  <p>Потребител: всеки имейл и парола</p>
+
+                {/* Тестови данни */}
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-3">🔑 Тестови данни за логване:</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm">
+                        <strong>Админ:</strong> admin@excursions.bg / admin123
+                      </div>
+                      <Button variant="outline" size="sm" onClick={fillAdminData}>
+                        Попълни
+                      </Button>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm">
+                        <strong>Потребител:</strong> user@excursions.bg / user123
+                      </div>
+                      <Button variant="outline" size="sm" onClick={fillUserData}>
+                        Попълни
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -163,10 +211,11 @@ export default function LoginPage() {
                     <Input
                       id="reg-password"
                       type="password"
-                      placeholder="Въведете парола"
+                      placeholder="Въведете парола (поне 3 символа)"
                       value={registerData.password}
                       onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                       required
+                      minLength={3}
                     />
                   </div>
                   <div className="space-y-2">
@@ -180,18 +229,27 @@ export default function LoginPage() {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full">
-                    Регистрирай се
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Изчакайте..." : "Регистрирай се"}
                   </Button>
                 </form>
+
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-700">
+                    💡 <strong>Съвет:</strong> Можете да се регистрирате с всеки имейл и парола. Системата ще ви създаде
+                    акаунт автоматично.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
 
         {message && (
-          <Alert className="mt-4">
-            <AlertDescription>{message}</AlertDescription>
+          <Alert className={`mt-4 ${message.includes("Успешно") ? "border-green-200 bg-green-50" : ""}`}>
+            <AlertDescription className={message.includes("Успешно") ? "text-green-700" : ""}>
+              {message}
+            </AlertDescription>
           </Alert>
         )}
       </div>

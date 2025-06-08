@@ -1,133 +1,36 @@
-"use client"
-
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Users, Star, ArrowLeft } from "lucide-react"
+import { sql } from "@/lib/neon"
+import BookingForm from "@/components/booking-form"
+import { notFound } from "next/navigation"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
+import { MapPin, Calendar, Users, Star } from "lucide-react"
+import type { Excursion } from "@/types"
 
-const excursions = [
-  {
-    id: 1,
-    title: "Рилски манастир и Боянската църква",
-    description:
-      "Еднодневна екскурзия до най-известния български манастир и UNESCO обект. Ще посетим прочутия Рилски манастир, основан през X век, и ще се насладим на неговата уникална архитектура и богата история. След това ще продължим към Боянската църква - един от най-важните паметници на средновековното изкуство в България.",
-    price: 45,
-    duration: "8 часа",
-    maxPeople: 25,
-    rating: 4.8,
-    image: "/placeholder.svg?height=400&width=600",
-    location: "София област",
-    includes: ["Транспорт с комфортен автобус", "Професионален гид", "Входни такси", "Застраховка"],
-    schedule: [
-      "08:00 - Тръгване от София",
-      "10:00 - Пристигане в Рилски манастир",
-      "12:30 - Обяд (по желание)",
-      "14:00 - Посещение на Боянската църква",
-      "16:00 - Връщане към София",
-      "18:00 - Пристигане в София",
-    ],
-  },
-  {
-    id: 2,
-    title: "Велико Търново - древната столица",
-    description: "Разходка из историческия център и крепостта Царевец",
-    price: 55,
-    duration: "10 часа",
-    maxPeople: 30,
-    rating: 4.9,
-    image: "/placeholder.svg?height=400&width=600",
-    location: "Велико Търново",
-    includes: ["Транспорт с комфортен автобус", "Професионален гид", "Входни такси", "Застраховка"],
-    schedule: [
-      "07:00 - Тръгване от София",
-      "10:00 - Пристигане във Велико Търново",
-      "10:30 - Обиколка на Царевец",
-      "13:00 - Обяд",
-      "15:00 - Разходка в Стария град",
-      "17:00 - Връщане към София",
-    ],
-  },
-]
+async function getExcursion(id: string): Promise<Excursion | null> {
+  try {
+    const excursions = await sql`
+      SELECT * FROM excursions WHERE id = ${Number.parseInt(id)}
+    `
 
-export default function BookingPage({ params }: { params: { id: string } }) {
-  const [excursion, setExcursion] = useState<any>(null)
-  const [bookingData, setBookingData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    people: 1,
-    date: "",
-    notes: "",
-  })
-  const [message, setMessage] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const router = useRouter()
-
-  useEffect(() => {
-    const id = Number.parseInt(params.id)
-    const foundExcursion = excursions.find((e) => e.id === id)
-    if (foundExcursion) {
-      setExcursion(foundExcursion)
-    } else {
-      router.push("/")
+    if (excursions.length === 0) {
+      return null
     }
-  }, [params.id, router])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (bookingData.name && bookingData.email && bookingData.phone && bookingData.date) {
-      // Симулация на запазване на резервацията
-      setMessage("Вашата резервация е изпратена успешно! Ще се свържем с вас скоро.")
-      setIsSubmitted(true)
-    } else {
-      setMessage("Моля попълнете всички задължителни полета!")
-    }
+    return excursions[0] as Excursion
+  } catch (error) {
+    console.error("Error fetching excursion:", error)
+    return null
   }
+}
+
+export default async function BookingPage({ params }: { params: { id: string } }) {
+  const excursion = await getExcursion(params.id)
 
   if (!excursion) {
-    return <div>Зареждане...</div>
-  }
-
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardHeader className="text-center">
-            <CardTitle className="text-green-600">Успешна резервация!</CardTitle>
-            <CardDescription>Благодарим ви за резервацията. Ще се свържем с вас в рамките на 24 часа.</CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="space-y-2 mb-6">
-              <p>
-                <strong>Екскурзия:</strong> {excursion.title}
-              </p>
-              <p>
-                <strong>Дата:</strong> {bookingData.date}
-              </p>
-              <p>
-                <strong>Брой хора:</strong> {bookingData.people}
-              </p>
-              <p>
-                <strong>Обща цена:</strong> {excursion.price * bookingData.people} лв
-              </p>
-            </div>
-            <Link href="/">
-              <Button className="w-full">Към началната страница</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    notFound()
   }
 
   return (
@@ -143,7 +46,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
           <div className="space-y-6">
             <div className="relative">
               <Image
-                src={excursion.image || "/placeholder.svg"}
+                src={excursion.image_url || "/placeholder.svg"}
                 alt={excursion.title}
                 width={600}
                 height={400}
@@ -169,7 +72,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Users className="w-5 h-5 mr-2" />
-                  До {excursion.maxPeople} души
+                  До {excursion.max_people} души
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Star className="w-5 h-5 mr-2 fill-yellow-400 text-yellow-400" />
@@ -211,105 +114,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Booking Form */}
-          <div>
-            <Card className="sticky top-8">
-              <CardHeader>
-                <CardTitle>Резервирайте сега</CardTitle>
-                <CardDescription>Попълнете формата за да резервирате вашето място</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Име и фамилия *</Label>
-                    <Input
-                      id="name"
-                      placeholder="Вашето име"
-                      value={bookingData.name}
-                      onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Имейл *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={bookingData.email}
-                      onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Телефон *</Label>
-                    <Input
-                      id="phone"
-                      placeholder="0888123456"
-                      value={bookingData.phone}
-                      onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="people">Брой хора *</Label>
-                      <Input
-                        id="people"
-                        type="number"
-                        min="1"
-                        max={excursion.maxPeople}
-                        value={bookingData.people}
-                        onChange={(e) => setBookingData({ ...bookingData, people: Number.parseInt(e.target.value) })}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="date">Желана дата *</Label>
-                      <Input
-                        id="date"
-                        type="date"
-                        value={bookingData.date}
-                        onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">Допълнителни бележки</Label>
-                    <Textarea
-                      id="notes"
-                      placeholder="Специални изисквания или въпроси..."
-                      value={bookingData.notes}
-                      onChange={(e) => setBookingData({ ...bookingData, notes: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-lg">Обща цена:</span>
-                      <span className="text-2xl font-bold text-green-600">
-                        {excursion.price * bookingData.people} лв
-                      </span>
-                    </div>
-                    <Button type="submit" className="w-full text-lg py-3">
-                      Резервирай сега
-                    </Button>
-                  </div>
-                </form>
-
-                {message && (
-                  <Alert className="mt-4">
-                    <AlertDescription>{message}</AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          <BookingForm excursion={excursion} />
         </div>
       </div>
     </div>
