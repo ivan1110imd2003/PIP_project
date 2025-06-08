@@ -1,0 +1,116 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Typography & Base */
+html {
+  font-size: 62.5%; /* 1rem = 10px */
+}
+
+body {
+  background: linear-gradient(
+    to right bottom,
+    #e0f2f7,
+    #d7eef8
+  ); /* Светъл, мек градиент */
+  min-height: 100vh;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.6rem;
+  line-height: 1.6;
+  color: #555; /* По-тъмен текст за светъл фон */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Центриране на съдържанието във body */
+  align-items: center; /* Центриране на съдържанието във body */
+}
+
+#root {
+  flex-grow: 1; /* Позволява на React app-а да се разтяга */
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* За да заема цялата ширина */
+  justify-content: center; /* Центриране на съдържанието в root */
+  align-items: center; /* Центриране на съдържанието в root */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Roboto", sans-serif; /* Всичко е Roboto */
+  color: #333;
+  margin-bottom: 2rem;
+  line-height: 1.2;
+  font-weight: 500; /* По-лек шрифт за заглавия */
+}
+
+h1 {
+  font-size: 3.6rem;
+}
+h2 {
+  font-size: 2.8rem;
+}
+h3 {
+  font-size: 2.2rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+a {
+  color: #007bff; /* Стандартно синьо за линкове */
+  text-decoration: none;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Global Layout / Container - Ще го опростим за формите */
+.container {
+  max-width: 90rem;
+  width: 90%;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.container--centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 0; /* Премахваме padding, тъй като auth-form-wrapper си има собствен */
+}
+
+/* Специален контейнер за login/register, който ще бъде основната форма */
+.auth-form-wrapper {
+  background-color: #ffffff; /* Бял фон */
+  padding: 5rem 4rem; /* Повече padding, вертикално повече */
+  border-radius: 1.2rem; /* Заоблени ъгли */
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15); /* По-изразена сянка */
+  width: 100%;
+  max-width: 45rem; /* Максимална ширина като на картинката */
+  position: relative; /* За аватара */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центриране на съдържанието във формата */
+}
+
+.app-content-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Центрира съдържанието в App */
+  align-items: center; /* Центрира съдържанието в App */
+  width: 100%; /* Заема цялата ширина */
+}

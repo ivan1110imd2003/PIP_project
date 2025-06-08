@@ -2,33 +2,30 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "nodemon"
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "dev:watch": "ts-node-dev src/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "mysql2": "^3.14.1",
-    "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.24",
-    "uuid": "^11.1.0"
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.2",
-    "@types/node": "^22.15.21",
-    "@types/uuid": "^10.0.0",
-    "nodemon": "^3.1.10",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.23",
+    "@types/node": "^20.19.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
   }
 }
